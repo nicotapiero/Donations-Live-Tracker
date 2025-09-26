@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+
+<p>This is a dummy site used just so you can grab the ?code=AUTHORIZATION_CODE URL param</p>
+
+
+<p id="copyCodeP" hidden="true">
+It should be <span id="copycode">text</span> btw
+</p>
+
+
+
+
+
+
+<script>
+
+
+let params = new URLSearchParams(document.location.search);
+let code = params.get("code"); // is the string "Jonathan"
+
+if (code) {
+	document.getElementById('copyCodeP').removeAttribute("hidden");
+	document.getElementById('copycode').innerHTML = code
+}
+
+
+
+
+
+
+
+	const span = document.querySelector("span");
+
+span.onclick = function() {
+  document.execCommand("copy");
+}
+
+span.addEventListener("copy", function(event) {
+  event.preventDefault();
+  if (event.clipboardData) {
+    event.clipboardData.setData("text/plain", span.textContent);
+    console.log(event.clipboardData.getData("text"))
+  }
+});
+
+
+
+
+
+</script>
+
+
+
+
+</html>
