@@ -22,7 +22,8 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 
-from constants import SCOPES, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, POLL_INTERVAL
+from constants import SCOPES, REDIRECT_URI, POLL_INTERVAL
+from credentials import CLIENT_ID, CLIENT_SECRET
 
 class GmailNotifier:
     def __init__(self):
