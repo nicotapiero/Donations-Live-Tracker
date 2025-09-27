@@ -25,6 +25,10 @@ from googleapiclient.discovery import build
 from constants import SCOPES, REDIRECT_URI, POLL_INTERVAL
 from credentials import CLIENT_ID, CLIENT_SECRET
 
+
+import re
+
+
 class GmailNotifier:
     def __init__(self):
         self.app = Flask(__name__, static_url_path='/static')
@@ -137,22 +141,6 @@ class GmailNotifier:
         @self.socketio.on('disconnect')
         def handle_disconnect():
             print(f"Client disconnected: {flask.request.sid}")
-
-        @self.socketio.on('admin_toast')
-        def handle_admin_toast(data):
-            """Receive an admin toast payload and broadcast to all clients."""
-            try:
-                value = None
-                if isinstance(data, dict):
-                    value = data.get('value')
-                payload = {
-                    'value': value,
-                    'timestamp': datetime.now().strftime('%H:%M:%S')
-                }
-                # Broadcast the event so index.html (and others) can react
-                self.socketio.emit('admin_toast', payload)
-            except Exception as e:
-                print(f"Error handling admin_toast: {e}")
 
     def authenticate(self):
         """Authenticate with Gmail using OAuth2 flow"""
@@ -286,12 +274,22 @@ class GmailNotifier:
                 
                 # Notify all connected clients
                 for email in new_emails:
-                    self.socketio.emit('new_email', {
-                        'from': email['from'],
-                        'subject': email['subject'],
-                        'snippet': email['snippet'][:100] + '...' if len(email['snippet']) > 100 else email['snippet'],
-                        'timestamp': datetime.fromtimestamp(email['timestamp']).strftime('%H:%M:%S')
-                    })
+                    # self.socketio.emit('new_email', {
+                    #     'from': email['from'],
+                    #     'subject': email['subject'],
+                    #     'snippet': email['snippet'][:100] + '...' if len(email['snippet']) > 100 else email['snippet'],
+                    #     'timestamp': datetime.fromtimestamp(email['timestamp']).strftime('%H:%M:%S')
+                    # })
+                    if email['from'] == 'venmo@venmo.com':
+                        pattern = re.compile("(.*) paid you \$([0-9\.\-\/]+)$")
+                        match = pattern.search(email['subject'])
+                        if match:
+                            value = match.group(2)
+                            payload = {
+                                'value': value,
+                                'timestamp': datetime.now().strftime('%H:%M:%S')
+                            }
+                            self.socketio.emit('donation_test', payload)
                 
                 self._last_email_ids = current_ids
             else:
