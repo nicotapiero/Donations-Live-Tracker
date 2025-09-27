@@ -567,7 +567,7 @@
             }
             adminPanel.addLog(`Sending number toast: ${num}`, 'info');
             // Send to server; server will broadcast to all clients
-            const response = await fetch('/admin/admin-toast', { 
+            const response = await fetch('/admin/donation_test', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ value: num }) 

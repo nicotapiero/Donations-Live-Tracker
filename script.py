@@ -26,7 +26,7 @@ from constants import SCOPES, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, POLL_INTER
 
 class GmailNotifier:
     def __init__(self):
-        self.app = Flask(__name__)
+        self.app = Flask(__name__, static_url_path='/static')
         self.app.config['SECRET_KEY'] = 'gmail-notifier-secret'
         self.socketio = SocketIO(self.app, cors_allowed_origins="*")
         self.credentials: Optional[Credentials] = None
@@ -72,23 +72,7 @@ class GmailNotifier:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
-        @self.app.route('/admin/toast', methods=['POST'])
-        def manual_toast():
-            if not self.credentials:
-                return jsonify({'error': 'Not authenticated'}), 401
-            
-            try:
-                self.socketio.emit('new_email', {
-                    'from': 'hfdsfsdf',
-                    'subject': 'ddddd',
-                    'snippet': 'ajsfkldsjklfkjs',
-                    'timestamp': datetime.now().strftime('%H:%M:%S')
-                })
-                return jsonify({'success': True, 'message': 'Toast broadcasted'})
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
-
-        @self.app.route('/admin/admin-toast', methods=['POST'])
+        @self.app.route('/admin/donation_test', methods=['POST'])
         def admin_toast_post():
             """Accept a number in the JSON body and broadcast it to clients as an admin_toast."""
             if not self.credentials:
@@ -110,52 +94,8 @@ class GmailNotifier:
                     'value': value,
                     'timestamp': datetime.now().strftime('%H:%M:%S')
                 }
-                self.socketio.emit('admin_toast', payload)
+                self.socketio.emit('donation_test', payload)
                 return jsonify({'success': True, 'message': 'Admin toast sent', 'payload': payload})
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
-
-        @self.app.route('/admin/toggle-polling', methods=['POST'])
-        def toggle_polling():
-            if not self.credentials:
-                return jsonify({'error': 'Not authenticated'}), 401
-            
-            if self.polling:
-                self.polling = False
-                message = 'Polling stopped'
-            else:
-                self.start_polling()
-                message = 'Polling started'
-            
-            return jsonify({
-                'success': True,
-                'message': message,
-                'polling': self.polling
-            })
-
-        @self.app.route('/admin/stats')
-        def get_stats():
-            if not self.service:
-                return jsonify({'error': 'Not authenticated'}), 401
-            
-            try:
-                # Get basic Gmail profile info
-                profile = self.service.users().getProfile(userId='me').execute()
-                
-                # Get unread count
-                unread_results = self.service.users().messages().list(
-                    userId='me',
-                    q='is:unread'
-                ).execute()
-                unread_count = unread_results.get('resultSizeEstimate', 0)
-                
-                return jsonify({
-                    'email_address': profile['emailAddress'],
-                    'total_messages': profile['messagesTotal'],
-                    'total_threads': profile['threadsTotal'],
-                    'unread_count': unread_count,
-                    'history_id': profile['historyId']
-                })
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 

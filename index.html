@@ -5,516 +5,193 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gmail Notifier</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-        }
-        
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 300;
-        }
-        
-        .nav-links {
-            margin-top: 15px;
-        }
-        
-        .nav-links a {
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            margin: 0 15px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .nav-links a:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-        
-        .status {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            color: white;
-        }
-        
-        .status-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-        
-        .status-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-        
-        .badge.connected {
-            background: #10b981;
-            color: white;
-        }
-        
-        .badge.disconnected {
-            background: #ef4444;
-            color: white;
-        }
-        
-        .badge.active {
-            background: #3b82f6;
-            color: white;
-        }
-        
-        .notifications {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-        
-        .notifications-header {
-            background: #f8fafc;
-            padding: 20px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .notifications-header h2 {
-            color: #374151;
-            font-size: 1.5em;
-            font-weight: 600;
-        }
-        
-        .notification-list {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        
-        .notification {
-            padding: 20px;
-            border-bottom: 1px solid #f1f5f9;
-            animation: slideIn 0.3s ease-out;
-            transition: background-color 0.2s;
-        }
-        
-        .notification:hover {
-            background-color: #f8fafc;
-        }
-        
-        .notification:last-child {
-            border-bottom: none;
-        }
-        
-        .notification-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .notification-from {
-            font-weight: 600;
-            color: #4f46e5;
-            font-size: 0.9em;
-        }
-        
-        .notification-time {
-            color: #6b7280;
-            font-size: 0.8em;
-        }
-        
-        .notification-subject {
-            font-weight: 500;
-            color: #1f2937;
-            margin-bottom: 8px;
-            font-size: 1.1em;
-        }
-        
-        .notification-snippet {
-            color: #6b7280;
-            font-size: 0.9em;
-            line-height: 1.4;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6b7280;
-        }
-        
-        .empty-state .icon {
-            font-size: 3em;
-            margin-bottom: 20px;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            
-            showAdminToast(value) {
-                // Trigger overlay fade in as a visual cue
-                fadeInFunc();
-                // Create a simple toast using existing .toast styles
-                const toast = document.createElement('div');
-                toast.className = 'toast';
-                const safe = (value === undefined || value === null) ? '' : String(value);
-                toast.innerHTML = `<div style="font-weight: bold; margin-bottom: 5px;">Admin Toast</div>
-                                   <div style="font-size: 0.9em;">Number: ${this.escapeHtml(safe)}</div>`;
-                document.body.appendChild(toast);
-                setTimeout(() => {
-                    toast.classList.add('hide');
-                    setTimeout(() => {
-                        if (toast.parentNode) {
-                            toast.parentNode.removeChild(toast);
-                        }
-                    }, 300);
-                }, 3000);
-            }
-            
-            showAdminToast(value) {
-                // Trigger overlay fade in as a visual cue
-                fadeInFunc();
-                // Create a simple toast using existing .toast styles
-                const toast = document.createElement('div');
-                toast.className = 'toast';
-                const safe = (value === undefined || value === null) ? '' : String(value);
-                toast.innerHTML = `<div style="font-weight: bold; margin-bottom: 5px;">Admin Toast</div>
-                                   <div style="font-size: 0.9em;">Number: ${this.escapeHtml(safe)}</div>`;
-                document.body.appendChild(toast);
-                setTimeout(() => {
-                    toast.classList.add('hide');
-                    setTimeout(() => {
-                        if (toast.parentNode) {
-                            toast.parentNode.removeChild(toast);
-                        }
-                    }, 300);
-                }, 3000);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #10b981;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            animation: toastSlide 0.3s ease-out;
-            max-width: 400px;
-        }
-        
-        .toast.hide {
-            animation: toastSlideOut 0.3s ease-out forwards;
-        }
-        
-        @keyframes toastSlide {
-            from {
-                opacity: 0;
-                transform: translateX(100%);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        
-        @keyframes toastSlideOut {
-            from {
-                opacity: 1;
-                transform: translateX(0);
-            }
-            to {
-                opacity: 0;
-                transform: translateX(100%);
-            }
-        }
-        
-        #container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 9999;
-            pointer-events: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        #target {
-            opacity: 0;
-        }
-        
-        #target img {
-            max-width: 80vw;
-            max-height: 80vh;
-            object-fit: contain;
-        }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📧 Gmail Notifier</h1>
-            <p>Real-time email notifications from your Gmail account</p>
-            <div class="nav-links">
-                <a href="/">🏠 Home</a>
-                <a href="/admin">⚙️ Admin</a>
-            </div>
-        </div>
+
+    <div id="container"><div id="target"><img src="https://cdn.dribbble.com/userupload/21319987/file/original-328823bcd9dff5520bc23d9b5b4bbdf5.gif"></div></div>
+
+
+    
+    
+</body>
 
 
 
 
-        <div id="container"><div id="target"><img src="https://cdn.dribbble.com/userupload/21319987/file/original-328823bcd9dff5520bc23d9b5b4bbdf5.gif"></div></div>
 
+<script>
 
+    var el = document.getElementById("target");
+              el.style.opacity = 0; 
 
-        
-        <div class="status">
-            <div class="status-item">
-                <span>Connection Status:</span>
-                <span class="badge disconnected" id="connection-status">Disconnected</span>
-            </div>
-            <div class="status-item">
-                <span>Authentication:</span>
-                <span class="badge disconnected" id="auth-status">Not Authenticated</span>
-            </div>
-            <div class="status-item">
-                <span>Email Polling:</span>
-                <span class="badge disconnected" id="polling-status">Inactive</span>
-            </div>
-            <div class="status-item" id="last-check-row" style="display: none;">
-                <span>Last Check:</span>
-                <span id="last-check-time">Never</span>
-            </div>
-        </div>
-        
-        <div class="notifications">
-            <div class="notifications-header">
-                <h2>Recent Email Notifications</h2>
-            </div>
-            <div class="notification-list" id="notification-list">
-                <div class="empty-state">
-                    <div class="icon">📬</div>
-                    <h3>Waiting for notifications...</h3>
-                    <p>New email notifications will appear here in real-time</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-
-        var el = document.getElementById("target");
-                  el.style.opacity = 0; 
-
-            function fadeInFunc() {
-                  var el = document.getElementById("target");
-                  el.style.opacity = 0; 
-                  var tick = function() {
-                    el.style.opacity = +el.style.opacity + 0.003;
-                    if (+el.style.opacity < 1) {
-                      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16)
-                    } else {
-                      fadeOutFunc();
-                    }
-                  };
-                  tick();
+        function fadeInFunc() {
+              var el = document.getElementById("target");
+              el.style.opacity = 0; 
+              var tick = function() {
+                el.style.opacity = +el.style.opacity + 0.003;
+                if (+el.style.opacity < 1) {
+                  (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16)
+                } else {
+                  fadeOutFunc();
                 }
+              };
+              tick();
+            }
 
-                function fadeOutFunc() {
-                  var el = document.getElementById("target");
-                  el.style.opacity = 1; 
-                  var tick = function() {
-                    el.style.opacity = +el.style.opacity - 0.003;
-                    if (+el.style.opacity > 0) {
-                      (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16)
-                    }
-                  };
-                  tick();
+            function fadeOutFunc() {
+              var el = document.getElementById("target");
+              el.style.opacity = 1; 
+              var tick = function() {
+                el.style.opacity = +el.style.opacity - 0.003;
+                if (+el.style.opacity > 0) {
+                  (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16)
                 }
-        class GmailNotifier {
-            constructor() {
-                this.socket = io();
-                this.notifications = [];
-                this.setupEventListeners();
+              };
+              tick();
             }
-            
-            setupEventListeners() {
-                this.socket.on('connect', () => {
-                    console.log('Connected to server');
-                    document.getElementById('connection-status').textContent = 'Connected';
-                    document.getElementById('connection-status').className = 'badge connected';
-                });
-                
-                this.socket.on('disconnect', () => {
-                    console.log('Disconnected from server');
-                    document.getElementById('connection-status').textContent = 'Disconnected';
-                    document.getElementById('connection-status').className = 'badge disconnected';
-                });
-                
-                this.socket.on('status', (data) => {
-                    document.getElementById('auth-status').textContent = data.authenticated ? 'Authenticated' : 'Not Authenticated';
-                    document.getElementById('auth-status').className = data.authenticated ? 'badge connected' : 'badge disconnected';
-                    
-                    document.getElementById('polling-status').textContent = data.polling ? 'Active' : 'Inactive';
-                    document.getElementById('polling-status').className = data.polling ? 'badge active' : 'badge disconnected';
-                    
-                    if (data.last_check) {
-                        document.getElementById('last-check-row').style.display = 'flex';
-                        document.getElementById('last-check-time').textContent = data.last_check;
-                    }
-                });
-                
-                this.socket.on('new_email', (email) => {
-                    this.addNotification(email);
-                    this.showToast(email);
-                });
-
-                this.socket.on('admin_toast', (payload) => {
-                    // payload: { value: <number>, timestamp: 'HH:MM:SS' }
-                    this.showAdminToast(payload && payload.value);
-                });
-            }
-            
-            addNotification(email) {
-                this.notifications.unshift(email);
-                
-                // Keep only last 20 notifications
-                if (this.notifications.length > 20) {
-                    this.notifications = this.notifications.slice(0, 20);
-                }
-                
-                this.renderNotifications();
-            }
-            
-            renderNotifications() {
-                const listElement = document.getElementById('notification-list');
-                
-                if (this.notifications.length === 0) {
-                    listElement.innerHTML = `
-                        <div class="empty-state">
-                            <div class="icon">📬</div>
-                            <h3>Waiting for notifications...</h3>
-                            <p>New email notifications will appear here in real-time</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                listElement.innerHTML = this.notifications.map(email => `
-                    <div class="notification">
-                        <div class="notification-meta">
-                            <div class="notification-from">${this.escapeHtml(email.from)}</div>
-                            <div class="notification-time">${email.timestamp}</div>
-                        </div>
-                        <div class="notification-subject">${this.escapeHtml(email.subject)}</div>
-                        <div class="notification-snippet">${this.escapeHtml(email.snippet)}</div>
-                    </div>
-                `).join('');
-            }
-       
-
-
-            showToast(email) {
-                fadeInFunc()
-
-
-
-                // const toast = document.createElement('div');
-                // toast.className = 'toast';
-                // toast.innerHTML = `
-                //     <div style="font-weight: bold; margin-bottom: 5px;">New Email</div>
-                //     <div style="font-size: 0.9em; margin-bottom: 3px;">From: ${this.escapeHtml(email.from)}</div>
-                //     <div style="font-size: 0.9em;">${this.escapeHtml(email.subject)}</div>
-                // `;
-                
-                // document.body.appendChild(toast);
-                
-                // // Auto-remove after 5 seconds
-                // setTimeout(() => {
-                //     toast.classList.add('hide');
-                //     setTimeout(() => {
-                //         if (toast.parentNode) {
-                //             toast.parentNode.removeChild(toast);
-                //         }
-                //     }, 300);
-                // }, 5000);
-            }
-            
-            showAdminToast(value) {
-                // Trigger overlay fade in as a visual cue
-                fadeInFunc();
-                // Create a simple toast using existing .toast styles
-                const toast = document.createElement('div');
-                toast.className = 'toast';
-                const safe = (value === undefined || value === null) ? '' : String(value);
-                toast.innerHTML = `<div style="font-weight: bold; margin-bottom: 5px;">Admin Toast</div>
-                                   <div style="font-size: 0.9em;">Number: ${this.escapeHtml(safe)}</div>`;
-                document.body.appendChild(toast);
-                setTimeout(() => {
-                    toast.classList.add('hide');
-                    setTimeout(() => {
-                        if (toast.parentNode) {
-                            toast.parentNode.removeChild(toast);
-                        }
-                    }, 300);
-                }, 3000);
-            }
-            
-            escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
+    class GmailNotifier {
+        constructor() {
+            this.socket = io();
+            this.notifications = [];
+            this.setupEventListeners();
         }
         
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', () => {
-            new GmailNotifier();
-        });
-    </script>
-</body>
+        setupEventListeners() {
+            this.socket.on('connect', () => {
+                console.log('Connected to server');
+                document.getElementById('connection-status').textContent = 'Connected';
+                document.getElementById('connection-status').className = 'badge connected';
+            });
+            
+            this.socket.on('disconnect', () => {
+                console.log('Disconnected from server');
+                document.getElementById('connection-status').textContent = 'Disconnected';
+                document.getElementById('connection-status').className = 'badge disconnected';
+            });
+            
+            this.socket.on('status', (data) => {
+                document.getElementById('auth-status').textContent = data.authenticated ? 'Authenticated' : 'Not Authenticated';
+                document.getElementById('auth-status').className = data.authenticated ? 'badge connected' : 'badge disconnected';
+                
+                document.getElementById('polling-status').textContent = data.polling ? 'Active' : 'Inactive';
+                document.getElementById('polling-status').className = data.polling ? 'badge active' : 'badge disconnected';
+                
+                if (data.last_check) {
+                    document.getElementById('last-check-row').style.display = 'flex';
+                    document.getElementById('last-check-time').textContent = data.last_check;
+                }
+            });
+            
+            this.socket.on('new_email', (email) => {
+                this.addNotification(email);
+                this.showToast(email);
+            });
+
+            this.socket.on('donation_test', (payload) => {
+                // payload: { value: <number>, timestamp: 'HH:MM:SS' }
+                this.showDonation(payload && payload.value);
+            });
+        }
+        
+        addNotification(email) {
+            this.notifications.unshift(email);
+            
+            // Keep only last 20 notifications
+            if (this.notifications.length > 20) {
+                this.notifications = this.notifications.slice(0, 20);
+            }
+            
+            this.renderNotifications();
+        }
+        
+        renderNotifications() {
+            const listElement = document.getElementById('notification-list');
+            
+            if (this.notifications.length === 0) {
+                listElement.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📬</div>
+                        <h3>Waiting for notifications...</h3>
+                        <p>New email notifications will appear here in real-time</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            listElement.innerHTML = this.notifications.map(email => `
+                <div class="notification">
+                    <div class="notification-meta">
+                        <div class="notification-from">${this.escapeHtml(email.from)}</div>
+                        <div class="notification-time">${email.timestamp}</div>
+                    </div>
+                    <div class="notification-subject">${this.escapeHtml(email.subject)}</div>
+                    <div class="notification-snippet">${this.escapeHtml(email.snippet)}</div>
+                </div>
+            `).join('');
+        }
+   
+
+
+        showToast(email) {
+            fadeInFunc()
+
+
+
+            // const toast = document.createElement('div');
+            // toast.className = 'toast';
+            // toast.innerHTML = `
+            //     <div style="font-weight: bold; margin-bottom: 5px;">New Email</div>
+            //     <div style="font-size: 0.9em; margin-bottom: 3px;">From: ${this.escapeHtml(email.from)}</div>
+            //     <div style="font-size: 0.9em;">${this.escapeHtml(email.subject)}</div>
+            // `;
+            
+            // document.body.appendChild(toast);
+            
+            // // Auto-remove after 5 seconds
+            // setTimeout(() => {
+            //     toast.classList.add('hide');
+            //     setTimeout(() => {
+            //         if (toast.parentNode) {
+            //             toast.parentNode.removeChild(toast);
+            //         }
+            //     }, 300);
+            // }, 5000);
+        }
+        
+        showDonation(value) {
+            // Trigger overlay fade in as a visual cue
+            fadeInFunc();
+
+            console.log(value)
+            // // Create a simple toast using existing .toast styles
+            // const toast = document.createElement('div');
+            // toast.className = 'toast';
+            // const safe = (value === undefined || value === null) ? '' : String(value);
+            // toast.innerHTML = `<div style="font-weight: bold; margin-bottom: 5px;">Admin Toast</div>
+            //                    <div style="font-size: 0.9em;">Number: ${this.escapeHtml(safe)}</div>`;
+            // document.body.appendChild(toast);
+            // setTimeout(() => {
+            //     toast.classList.add('hide');
+            //     setTimeout(() => {
+            //         if (toast.parentNode) {
+            //             toast.parentNode.removeChild(toast);
+            //         }
+            //     }, 300);
+            // }, 3000);
+        }
+        
+        escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    }
+    
+    // Initialize the app
+    document.addEventListener('DOMContentLoaded', () => {
+        new GmailNotifier();
+    });
+</script>
+
+
 </html>

@@ -2,12 +2,13 @@ I'm using python 3.12.4 if it matters,
 
 python3 -m pip install -r requirements.txt
 
+
+
 python3 script.py   
 
 
-It's gonna print some google cloud setup required stuff, the AI wrote out nice steps:
+It's gonna print some google cloud setup required stuff, gonna look like:
 
-```
 ⚠️  SETUP REQUIRED:
 Before running this app, you need to:
 1. Go to https://console.cloud.google.com/
@@ -18,9 +19,15 @@ Before running this app, you need to:
 
 For detailed setup instructions, visit:
 https://developers.google.com/gmail/api/quickstart/python
-```
 
-But I would have added step 3.5: configure oath consent screen
-and how later, under "audience", you need to add yourself as a test user
 
-Might need threading and http stuff in requirements.txt too but I think it's pre installed
+
+
+Probably should have written step 3.5 - configure oath consent screen
+
+
+Under "audience" add yourself as a test user
+
+
+
+Might need threading and http stuff but I think it's pre installed
