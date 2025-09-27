@@ -71,6 +71,14 @@
                 // payload: { value: <number>, timestamp: 'HH:MM:SS' }
                 this.showDonation(payload && payload.value);
             });
+
+            this.socket.on('set_progress', (payload) => {
+                const raw = payload && (typeof payload.value !== 'undefined' ? payload.value : payload);
+                const num = Number(raw);
+                if (!Number.isNaN(num)) {
+                    this.setProgress(num);
+                }
+            });
         }
         
         // addNotification(email) {
@@ -167,6 +175,17 @@
             //         }
             //     }, 300);
             // }, 3000);
+        }
+
+        setProgress(value) {
+            const prog = document.getElementById('donationAmount');
+            if (!prog) return;
+            const max = Number(prog.max) || 100;
+            let v = Number(value);
+            if (Number.isNaN(v)) return;
+            v = Math.max(0, Math.min(max, v));
+            prog.value = v;
+            console.log(`Progress set to ${v}/${max}`);
         }
         
         escapeHtml(text) {

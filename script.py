@@ -100,6 +100,31 @@ class GmailNotifier:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
+        @self.app.route('/admin/set_progress', methods=['POST'])
+        def admin_set_progress():
+            """Accept a value and broadcast a set_progress event to all clients."""
+            if not self.credentials:
+                return jsonify({'error': 'Not authenticated'}), 401
+
+            try:
+                data = flask.request.get_json(silent=True) or {}
+                value = data.get('value')
+                # Coerce to number if possible
+                try:
+                    if value is not None and not isinstance(value, (int, float)):
+                        value = float(value)
+                except Exception:
+                    pass
+
+                payload = {
+                    'value': value,
+                    'timestamp': datetime.now().strftime('%H:%M:%S')
+                }
+                self.socketio.emit('set_progress', payload)
+                return jsonify({'success': True, 'message': 'Progress event broadcasted', 'payload': payload})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
+
         @self.socketio.on('connect')
         def handle_connect():
             print(f"Client connected: {flask.request.sid}")

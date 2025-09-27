@@ -277,6 +277,11 @@
             <button class="btn" onclick="sendNumberToast()">📣 Send Test Donation</button>
         </div>
 
+        <div class="control-group">
+            <input type="number" id="progress-value" placeholder="Set progress (0-100)" style="padding: 8px 10px; border: 1px solid #e5e7eb; border-radius: 6px; width: 200px; margin-right: 10px;">
+            <button class="btn" onclick="sendSetProgress()">🎯 Set Progress</button>
+        </div>
+
 
         <h1>random claude generated trash below, don't care</h1>
         
@@ -590,6 +595,39 @@
                 try { const data = await response.json(); errText = data && data.error ? data.error : ''; } catch (e) {}
                 adminPanel.showToast(`Failed to send number toast${errText ? ': ' + errText : ''}`, 'error');
                 adminPanel.addLog(`Failed to send number toast${errText ? ': ' + errText : ''}`, 'error');
+            }
+        }
+
+        async function sendSetProgress() {
+            const input = document.getElementById('progress-value');
+            const value = input.value.trim();
+            if (value === '') {
+                adminPanel.showToast('Please enter a progress value', 'error');
+                return;
+            }
+            let num = Number(value);
+            if (Number.isNaN(num)) {
+                adminPanel.showToast('Invalid progress value', 'error');
+                return;
+            }
+            // Clamp between 0-100 by default
+            num = Math.max(0, Math.min(100, num));
+            adminPanel.addLog(`Setting progress to: ${num}`, 'info');
+            // Prefer server endpoint to broadcast to all clients
+            const response = await fetch('/admin/set_progress', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ value: num })
+            });
+            if (response.ok) {
+                await response.json().catch(() => ({}));
+                adminPanel.showToast('Progress update sent');
+                adminPanel.addLog(`Server broadcasted set_progress: ${num}`);
+            } else {
+                let errText = '';
+                try { const data = await response.json(); errText = data && data.error ? data.error : ''; } catch (e) {}
+                adminPanel.showToast(`Failed to set progress${errText ? ': ' + errText : ''}`, 'error');
+                adminPanel.addLog(`Failed to set progress${errText ? ': ' + errText : ''}`, 'error');
             }
         }
     </script>
