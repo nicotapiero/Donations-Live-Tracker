@@ -50,6 +50,79 @@
             }
         }
 
+        // --- Donation Popup Overlay ---
+        function showDonationPopup(amount) {
+            // Avoid stacking many overlays
+            const existing = document.getElementById('donationOverlay');
+            if (existing) {
+                try { existing.remove(); } catch (_) {}
+            }
+
+            // Create overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'donationOverlay';
+            overlay.style.position = 'fixed';
+            overlay.style.inset = '0';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.background = 'rgba(0,0,0,0.6)';
+            overlay.style.zIndex = '10000';
+            overlay.style.opacity = '0';
+            overlay.style.transition = 'opacity 300ms ease';
+
+            // Inner popup
+            const popup = document.createElement('div');
+            popup.style.background = 'rgba(255,255,255,0.98)';
+            popup.style.borderRadius = '16px';
+            popup.style.padding = '24px 28px';
+            popup.style.boxShadow = '0 20px 60px rgba(0,0,0,0.35)';
+            popup.style.display = 'flex';
+            popup.style.flexDirection = 'column';
+            popup.style.alignItems = 'center';
+            popup.style.gap = '12px';
+            popup.style.maxWidth = '90vw';
+            popup.style.maxHeight = '90vh';
+
+            const img = document.createElement('img');
+            img.src = 'static/donation_dance.gif';
+            img.alt = 'Donation celebration';
+            img.style.width = 'min(360px, 60vw)';
+            img.style.height = 'auto';
+            img.style.display = 'block';
+
+            const p = document.createElement('div');
+            p.style.fontSize = '20px';
+            p.style.fontWeight = '700';
+            p.style.color = '#1f2937';
+            p.style.textAlign = 'center';
+            const amt = Number(amount);
+            if (!Number.isNaN(amt) && amt > 0) {
+                p.textContent = `Thank you for the $${amt.toLocaleString('en-US', {maximumFractionDigits: 2})}!`;
+            } else {
+                p.textContent = 'Thank you for your donation!';
+            }
+
+            popup.appendChild(img);
+            popup.appendChild(p);
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+
+            // Fade in
+            requestAnimationFrame(() => {
+                overlay.style.opacity = '1';
+            });
+
+            // Hold, then fade out and remove
+            const holdMs = 2500;
+            setTimeout(() => {
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    try { overlay.remove(); } catch (_) {}
+                }, 320);
+            }, holdMs);
+        }
+
         // --- Socket Event Handlers ---
         socket.on('connect', () => {
             console.log('Connected to server');
@@ -111,6 +184,11 @@
             console.log('Received donation test:', data);
             updateInputsFromServer(data);
             updateUI();
+            try {
+                showDonationPopup(data && (data.value ?? data.currentInputChange));
+            } catch (e) {
+                console.error('Error showing donation popup:', e);
+            }
         });
 
         // --- Data Handling Functions ---

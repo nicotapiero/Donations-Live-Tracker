@@ -31,3 +31,6 @@ Under "audience" add yourself as a test user
 
 
 Might need threading and http stuff but I think it's pre installed
+
+
+mostly copying https://github.com/naziml/essentials-first-donations for frontend and hacking my backend into it
