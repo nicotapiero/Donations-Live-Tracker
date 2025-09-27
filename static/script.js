@@ -185,7 +185,8 @@
             updateInputsFromServer(data);
             updateUI();
             try {
-                showDonationPopup(data && (data.value ?? data.currentInputChange));
+                if (data.currentInputChange) return;
+                showDonationPopup(data && (data.value));
             } catch (e) {
                 console.error('Error showing donation popup:', e);
             }
