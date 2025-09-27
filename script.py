@@ -96,8 +96,12 @@ class GmailNotifier:
                     pass
 
                 payload = {
-                    'value': value,
-                    'timestamp': datetime.now().strftime('%H:%M:%S')
+                   
+                    "value" : value,
+            # currentInput.value = data.current || 0;
+            # titleInput.value = data.title || '';
+            # sloganInput.value = data.slogan || '';
+            # imageInput.value = data.image || '';
                 }
                 self.socketio.emit('donation_test', payload)
                 return jsonify({'success': True, 'message': 'Admin toast sent', 'payload': payload})
@@ -121,10 +125,10 @@ class GmailNotifier:
                     pass
 
                 payload = {
-                    'value': value,
+                    'currentInputChange': value,
                     'timestamp': datetime.now().strftime('%H:%M:%S')
                 }
-                self.socketio.emit('set_progress', payload)
+                self.socketio.emit('donation_test', payload)
                 return jsonify({'success': True, 'message': 'Progress event broadcasted', 'payload': payload})
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
