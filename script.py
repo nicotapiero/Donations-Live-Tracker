@@ -337,7 +337,7 @@ class GmailNotifier:
                     #     'snippet': email['snippet'][:100] + '...' if len(email['snippet']) > 100 else email['snippet'],
                     #     'timestamp': datetime.fromtimestamp(email['timestamp']).strftime('%H:%M:%S')
                     # })
-                    if email['from'] == 'venmo@venmo.com':
+                    if "paid you" in email['subject']:
                         pattern = re.compile("(.*) paid you \$([0-9\.\-\/]+)$")
                         match = pattern.search(email['subject'])
                         if match:
