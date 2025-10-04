@@ -362,6 +362,17 @@
         .promo-row {
             row-gap: 1.5rem;
         }
+
+        /* Mode-specific scaling: make everything bigger in partial-dynamic mode */
+        body.mode-partial-dynamic #campaignTitle {
+            font-size: clamp(2rem, 5vw, 3.25rem);
+        }
+        body.mode-partial-dynamic .promo-image {
+            max-width: 820px;
+        }
+        body.mode-partial-dynamic .promo-row {
+            row-gap: 2rem;
+        }
     </style>
 </head>
 

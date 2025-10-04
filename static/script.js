@@ -7,6 +7,29 @@
         const currentInput ={};
 
         var globalMode = "static";
+        // Elements for mode-based GIF swapping
+        const danceEl = () => document.getElementById('constantDance');
+        const sleepEl = () => document.getElementById('constantSleep');
+        let danceRevertTimer = null;
+
+        function showDanceTemporarily(ms) {
+            try {
+                const d = danceEl();
+                const s = sleepEl();
+                if (d) d.hidden = false;
+                if (s) s.hidden = true;
+                if (danceRevertTimer) clearTimeout(danceRevertTimer);
+                danceRevertTimer = setTimeout(() => {
+                    // Revert to sleeping only if still in dynamic mode
+                    if (globalMode === 'dynamic') {
+                        if (d) d.hidden = true;
+                        if (s) s.hidden = false;
+                    }
+                }, ms);
+            } catch (e) {
+                console.warn('showDanceTemporarily error', e);
+            }
+        }
         // --- Connection Status Management ---
         function updateConnectionStatus(status) {
             connectionStatus.className = `connection-status ${status}`;
@@ -184,6 +207,11 @@
             try {
                 if (data.currentInputChange) return;
                 showDonationPopup(data && (data.value));
+                // In dynamic mode, swap sleep->dance for 30s, resetting on new donations
+                if (globalMode === 'dynamic') {
+                    showDanceTemporarily(30000);
+                    // showDanceTemporarily(5000); // 5s for testing
+                }
             } catch (e) {
                 console.error('Error showing donation popup:', e);
             }
@@ -317,22 +345,37 @@
                     showQR = false;
                     globalMode = 'dynamic';
 
-                    document.getElementById('constantDance').hidden = true;
-                   
-                    document.getElementById('constantSleep').removeAttribute('hidden')
+                    // Default to sleeping; dance will show on donations
+                    const d = document.getElementById('constantDance');
+                    const s = document.getElementById('constantSleep');
+                    if (d) d.hidden = true;
+                    if (s) s.hidden = false;
+
+                    // Initialize dance timer
+                    let danceTimer = null;
+
+                    // Function to show dance GIF for 30s
+                    function showDanceTemporarily(ms) {
+                        if (danceTimer) clearTimeout(danceTimer);
+                        if (s) s.hidden = true;
+                        if (d) d.hidden = false;
+                        danceTimer = setTimeout(() => {
+                            if (s) s.hidden = false;
+                            if (d) d.hidden = true;
+                        }, ms);
+                    }
 
                 } else {
-                  console.log('statparially sdyniic mode')
+                  console.log('statparally sdyniic mode')
                   globalMode = 'partially-dynamic';
                   document.getElementById('constantDance').hidden = true;
                   document.getElementById('constantSleep').hidden = true;
-                 
+                  
                 }
 
                 // if (thermoOuter) thermoOuter.style.height = outerHeight;
                 // if (bulb) {
                 //     bulb.style.width = bulbSize.w;
-                //     bulb.style.height = bulbSize.h;
                 //     bulb.style.bottom = bulbSize.bottom;
                 //     const inner = bulb.querySelector('.thermometer-inner-bulb');
                 //     if (inner) {

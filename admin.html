@@ -282,6 +282,42 @@
             <button class="btn" onclick="sendSetProgress()">🎯 Set Progress</button>
         </div>
 
+        <div class="admin-card">
+            <h3>🖥️ Display Mode</h3>
+            <div class="control-group">
+                <label for="modeSelect" style="display:block; margin-bottom:8px; color:#374151; font-weight:600;">Select Frontend Mode</label>
+                <select id="modeSelect" style="padding: 8px 10px; border: 1px solid #e5e7eb; border-radius: 6px; min-width: 200px; margin-right:10px;">
+                    <option value="static">static</option>
+                    <option value="partial-dynamic">partially dynamic</option>
+                    <option value="dynamic">dynamic</option>
+                </select>
+                <button class="btn" onclick="saveMode()">💾 Save Mode</button>
+            </div>
+            <div class="status-item">
+                <span>Current Mode:</span>
+                <span class="badge active" id="current-mode-badge">standard</span>
+            </div>
+        </div>
+
+
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        
+        <br/>
+        <br/><br/><br/><br/><br/><br/><br/><br/>
 
         <h1>random claude generated trash below, don't care</h1>
         
@@ -301,22 +337,7 @@
             </div>
             </div>
 
-            <div class="admin-card">
-                <h3>🖥️ Display Mode</h3>
-                <div class="control-group">
-                    <label for="modeSelect" style="display:block; margin-bottom:8px; color:#374151; font-weight:600;">Select Frontend Mode</label>
-                    <select id="modeSelect" style="padding: 8px 10px; border: 1px solid #e5e7eb; border-radius: 6px; min-width: 200px; margin-right:10px;">
-                        <option value="static">static</option>
-                        <option value="partial-dynamic">partially dynamic</option>
-                        <option value="dynamic">dynamic</option>
-                    </select>
-                    <button class="btn" onclick="saveMode()">💾 Save Mode</button>
-                </div>
-                <div class="status-item">
-                    <span>Current Mode:</span>
-                    <span class="badge active" id="current-mode-badge">standard</span>
-                </div>
-            </div>
+
 
             <div class="admin-card">
                 <h3>📊 System Status</h3>
