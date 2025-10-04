@@ -365,24 +365,26 @@
             <!-- Title Section -->
             <div class="text-center mb-4">
                 <div class="d-flex justify-content-center align-items-center mb-3 flex-wrap">
-                    <img id="campaignImage" class="rounded-3 border border-2 border-primary-subtle me-3"
-                        style="width: 60px; height: 60px; object-fit: cover;"
-                        src="https://www.filepicker.io/api/file/jHiKQ5SZQxWKWNZAR9Ud"
-                        onerror="this.src='https://placehold.co/60x60/cbd5e1/1f2937?text=Logo'">
-                    <h1 id="campaignTitle" class="display-6 fw-bold text-primary mb-0">Essentials First Youth Fundraising Campaign</h1>
+                    <h1 id="campaignTitle" class="display-6 fw-bold text-primary mb-0">Donate to current band here!</h1>
                 </div>
-                <p id="campaignSlogan" class="fs-6 text-muted mb-0 fw-light">Help us reach our goal!</p>
             </div>
+
+          
 
             <!-- QR Code and Thermometer Side by Side -->
             <div class="row align-items-center justify-content-center mb-4">
                 <!-- QR Code Section (Left) -->
-                <div class="col-12 col-lg-6 text-center">
-                    <img src="donation_qr.jpg" alt="Donation QR Code" class="img-fluid shadow-lg rounded-3" style="max-width: 450px; width: 100%;">
-                </div>
+              
+             
 
                 <!-- Thermometer Section (Right) -->
                 <div class="col-12 col-lg-6 d-flex flex-column align-items-center">
+
+                    <div class="d-flex align-items-center justify-content-center gap-3 mb-4">
+                        <img src="/static/donation_qr.png" alt="Donation QR Code" style="max-width: 220px; height: auto;" class="img-fluid" />
+                        <img id="constantDance" src="/static/donation_dance.gif" alt="Donation celebration" style="max-width: 220px; height: auto;" class="img-fluid" />
+                    </div>
+    
                     <!-- <div class="text-center mb-4">
                         <h3 class="fs-4 fw-bold text-primary mb-3">
                             <i class="fas fa-thermometer-half me-2"></i>
@@ -393,7 +395,7 @@
                             <span id="goalAmountText" class="fs-5 fw-semibold text-muted">$50,000</span>
                         </div>
                     </div> -->
-                    <div class="text-center">
+                    <!-- <div class="text-center">
                         <div id="percentageDisplay" class="fs-4 fw-bold text-primary mb-4">0%</div>
                         <div class="position-relative">
                             <div class="vertical-thermometer" style="width: 110px; height: 400px;">
@@ -402,7 +404,7 @@
                                     <div class="thermometer-inner-bulb" style="width: 95px; height: 95px;"></div>
                                 </div>
                             </div>
-                            <!-- Goal markers -->
+            
                             <div class="goal-markers" style="right: -70px;">
                                 <span class="goal-marker" id="goal100" style="font-size: 14px;">$100</span>
                                 <span class="goal-marker" id="goal75" style="font-size: 14px;">$75</span>
@@ -411,7 +413,7 @@
                                 <span class="goal-marker" id="goal0" style="font-size: 14px;">$0</span>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 </body>

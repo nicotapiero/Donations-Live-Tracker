@@ -38,6 +38,8 @@ class GmailNotifier:
         self.service = None
         self.last_history_id: Optional[str] = None
         self.polling = False
+        # Display mode for frontend behavior/layout. One of: 'standard', 'compact', 'minimal'
+        self.mode = 'standard'
         self.setup_routes()
 
     def setup_routes(self):
@@ -57,8 +59,35 @@ class GmailNotifier:
                 'authenticated': self.credentials is not None,
                 'polling': self.polling,
                 'last_check': getattr(self, '_last_check_time', None),
-                'email_count': len(getattr(self, '_last_email_ids', set()))
+                'email_count': len(getattr(self, '_last_email_ids', set())),
+                'mode': self.mode
             })
+
+        # Public endpoint to get current display mode
+        @self.app.route('/mode', methods=['GET'])
+        def get_mode():
+            return jsonify({'mode': self.mode})
+
+        # Admin endpoint to view or set display mode
+        @self.app.route('/admin/mode', methods=['GET', 'POST'])
+        def admin_mode():
+            if flask.request.method == 'GET':
+                return jsonify({'mode': self.mode})
+
+            # For changes, require authentication similar to other admin actions
+            if not self.credentials:
+                return jsonify({'error': 'Not authenticated'}), 401
+
+            data = flask.request.get_json(silent=True) or {}
+            new_mode = (data.get('mode') or '').strip().lower()
+            # if new_mode not in {'standard', 'compact', 'minimal'}:
+            #     return jsonify({'error': 'Invalid mode'}), 400
+
+            self.mode = new_mode
+            # Broadcast to all clients
+            print(self.mode, new_mode)
+            self.socketio.emit('modeChanged', {'mode': self.mode, 'timestamp': datetime.now().strftime('%H:%M:%S')})
+            return jsonify({'success': True, 'mode': self.mode})
 
         @self.app.route('/admin/poll', methods=['POST'])
         def manual_poll():
@@ -139,7 +168,8 @@ class GmailNotifier:
             emit('status', {
                 'authenticated': self.credentials is not None,
                 'polling': self.polling,
-                'last_check': getattr(self, '_last_check_time', None)
+                'last_check': getattr(self, '_last_check_time', None),
+                'mode': self.mode
             })
 
         @self.socketio.on('disconnect')

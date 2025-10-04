@@ -9,6 +9,8 @@
         const sloganInput = {};
         const imageInput = {};
 
+        var globalMode = "static";
+
         const campaignTitle = document.getElementById('campaignTitle');
         const campaignSlogan = document.getElementById('campaignSlogan');
         const campaignImage = document.getElementById('campaignImage');
@@ -52,6 +54,10 @@
 
         // --- Donation Popup Overlay ---
         function showDonationPopup(amount) {
+          console.log(amount, globalMode)
+          if (globalMode === 'static') {
+            return;
+          }
             // Avoid stacking many overlays
             const existing = document.getElementById('donationOverlay');
             if (existing) {
@@ -124,9 +130,19 @@
         }
 
         // --- Socket Event Handlers ---
-        socket.on('connect', () => {
+        socket.on('connect', async () => {
             console.log('Connected to server');
             updateConnectionStatus('connected');
+            // Fetch and apply current mode on connect
+            // try {
+            //     const res = await fetch('/mode');
+            //     if (res.ok) {
+            //         const data = await res.json();
+            //         if (data && data.mode) applyMode(data.mode);
+            //     }
+            // } catch (e) {
+            //     console.warn('Failed to load mode:', e);
+            // }
         });
 
         socket.on('disconnect', () => {
@@ -143,6 +159,14 @@
             console.log('Received donation update:', data);
             updateInputsFromServer(data);
             updateUI();
+        });
+
+        socket.on('modeChanged', (payload) => {
+            const mode = payload && payload.mode;
+            if (mode) {
+                console.log('Applying modeChanged:', mode);
+                applyMode(mode);
+            }
         });
 
         socket.on('error', (error) => {
@@ -262,29 +286,88 @@
             // document.getElementById('goal0').textContent = '$0';
 
             // Update vertical thermometer
-            const percentage = Math.min((current / goal) * 100, 100);
-            thermometerFillVertical.style.height = `${percentage}%`;
-            percentageDisplay.textContent = `${Math.round(percentage)}%`;
+            // const percentage = Math.min((current / goal) * 100, 100);
+            // thermometerFillVertical.style.height = `${percentage}%`;
+            // percentageDisplay.textContent = `${Math.round(percentage)}%`;
 
-            console.log(goal, current, percentage)
+            // console.log(goal, current, percentage)
 
             // Goal achievement celebration
-            if (percentage >= 100) {
-                thermometerFillVertical.classList.add('goal-reached');
-                thermometerBulb.classList.add('goal-reached');
-                percentageDisplay.textContent = '🎉 Goal Reached!';
+            // if (percentage >= 100) {
+            //     thermometerFillVertical.classList.add('goal-reached');
+            //     thermometerBulb.classList.add('goal-reached');
+            //     percentageDisplay.textContent = '🎉 Goal Reached!';
 
-                // Trigger confetti burst explosion only when goal is first reached
-                if (!goalReachedBefore) {
-                    triggerGoalReachedConfetti();
-                    goalReachedBefore = true;
+            //     // Trigger confetti burst explosion only when goal is first reached
+            //     if (!goalReachedBefore) {
+            //         triggerGoalReachedConfetti();
+            //         goalReachedBefore = true;
+            //     }
+            // } else {
+            //     thermometerFillVertical.classList.remove('goal-reached');
+            //     thermometerBulb.classList.remove('goal-reached');
+            //     percentageDisplay.textContent = `${Math.round(percentage)}%`;
+            //     goalReachedBefore = false;
+            //     stopConfettiLoop(); // Stop confetti when goal is no longer reached
+            // }
+        }
+
+        // --- Mode Application ---
+        function applyMode(mode) {
+            try {
+                const normalized = (mode || 'standard').toLowerCase();
+                const body = document.body;
+                body.classList.remove('mode-standard', 'mode-compact', 'mode-minimal');
+                body.classList.add(`mode-${normalized}`);
+
+                const thermoOuter = document.querySelector('.vertical-thermometer');
+                const bulb = document.getElementById('thermometerBulb');
+                const percent = document.getElementById('percentageDisplay');
+                const qrImg = document.querySelector('img[alt="Donation QR Code"]');
+                const goals = document.querySelector('.goal-markers');
+
+                // Defaults for 'standard'
+                let outerHeight = '400px';
+                let bulbSize = { w: '140px', h: '140px', bottom: '-25px', inner: { w: '95px', h: '95px' } };
+                let showPercent = true;
+                let showQR = true;
+                let showGoals = true;
+
+                if (normalized === 'static') {
+                  console.log('static mode')
+                  globalMode = 'static';
+                  document.getElementById('constantDance').removeAttribute('hidden')
+                 
+                   
+                } else if (normalized === 'dynamic') {
+                  console.log(' mode')
+                    showQR = false;
+                    globalMode = 'dynamic';
+
+                    document.getElementById('constantDance').hidden = true;
+
+                } else {
+                  console.log('statparially sdyniic mode')
+                  globalMode = 'partially-dynamic';
+                  document.getElementById('constantDance').hidden = true;
                 }
-            } else {
-                thermometerFillVertical.classList.remove('goal-reached');
-                thermometerBulb.classList.remove('goal-reached');
-                percentageDisplay.textContent = `${Math.round(percentage)}%`;
-                goalReachedBefore = false;
-                stopConfettiLoop(); // Stop confetti when goal is no longer reached
+
+                // if (thermoOuter) thermoOuter.style.height = outerHeight;
+                // if (bulb) {
+                //     bulb.style.width = bulbSize.w;
+                //     bulb.style.height = bulbSize.h;
+                //     bulb.style.bottom = bulbSize.bottom;
+                //     const inner = bulb.querySelector('.thermometer-inner-bulb');
+                //     if (inner) {
+                //         inner.style.width = bulbSize.inner.w;
+                //         inner.style.height = bulbSize.inner.h;
+                //     }
+                // }
+                // if (percent) percent.style.display = showPercent ? '' : 'none';
+                // if (qrImg) qrImg.style.display = showQR ? '' : 'none';
+                // if (goals) goals.style.display = showGoals ? '' : 'none';
+            } catch (e) {
+                console.warn('applyMode error:', e);
             }
         }
 

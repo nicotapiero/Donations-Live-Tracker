@@ -299,7 +299,25 @@
                     <button class="btn" onclick="refreshStats()">📊 Refresh Stats</button>
                 </div>
             </div>
-            
+            </div>
+
+            <div class="admin-card">
+                <h3>🖥️ Display Mode</h3>
+                <div class="control-group">
+                    <label for="modeSelect" style="display:block; margin-bottom:8px; color:#374151; font-weight:600;">Select Frontend Mode</label>
+                    <select id="modeSelect" style="padding: 8px 10px; border: 1px solid #e5e7eb; border-radius: 6px; min-width: 200px; margin-right:10px;">
+                        <option value="static">static</option>
+                        <option value="partial-dynamic">partially dynamic</option>
+                        <option value="dynamic">dynamic</option>
+                    </select>
+                    <button class="btn" onclick="saveMode()">💾 Save Mode</button>
+                </div>
+                <div class="status-item">
+                    <span>Current Mode:</span>
+                    <span class="badge active" id="current-mode-badge">standard</span>
+                </div>
+            </div>
+
             <div class="admin-card">
                 <h3>📊 System Status</h3>
                 <div class="status-item">
@@ -399,10 +417,24 @@
                         document.getElementById('email-count-row').style.display = 'flex';
                         document.getElementById('email-count').textContent = data.email_count;
                     }
+
+                    // Mode reflected in status
+                    if (data.mode) {
+                        updateModeUI(data.mode);
+                    }
                 });
                 
                 this.socket.on('new_email', (email) => {
                     this.addLog(`New email from ${email.from}: ${email.subject}`, 'success');
+                });
+
+                this.socket.on('modeChanged', (payload) => {
+                    const mode = payload && payload.mode;
+                    if (mode) {
+                        this.addLog(`Mode changed to: ${mode}`, 'info');
+                        updateModeUI(mode);
+                        this.showToast(`Mode updated to ${mode}`);
+                    }
                 });
             }
             
@@ -496,6 +528,8 @@
         // Initialize admin panel
         document.addEventListener('DOMContentLoaded', () => {
             adminPanel = new AdminPanel();
+            // Load current mode
+            loadMode();
         });
         
         // Control functions
@@ -565,6 +599,52 @@
         
         function refreshStats() {
             adminPanel.refreshStats();
+        }
+
+        async function loadMode() {
+            try {
+                const res = await fetch('/admin/mode');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.mode) {
+                        updateModeUI(data.mode);
+                    }
+                }
+            } catch (e) {
+                adminPanel.addLog(`Failed to load mode: ${e.message}`, 'error');
+            }
+        }
+
+        function updateModeUI(mode) {
+            const sel = document.getElementById('modeSelect');
+            if (sel) sel.value = mode;
+            const badge = document.getElementById('current-mode-badge');
+            if (badge) badge.textContent = mode;
+        }
+
+        async function saveMode() {
+            const sel = document.getElementById('modeSelect');
+            const newMode = sel.value;
+            try {
+                const res = await fetch('/admin/mode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mode: newMode })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    adminPanel.addLog(`Saved mode: ${data.mode}`, 'success');
+                    updateModeUI(data.mode);
+                    adminPanel.showToast(`Saved mode: ${data.mode}`);
+                } else {
+                    const err = data && (data.error || 'Unknown error');
+                    adminPanel.addLog(`Failed to save mode: ${err}`, 'error');
+                    adminPanel.showToast(`Failed to save mode: ${err}`, 'error');
+                }
+            } catch (e) {
+                adminPanel.addLog(`Error saving mode: ${e.message}`, 'error');
+                adminPanel.showToast(`Error: ${e.message}`, 'error');
+            }
         }
         
         async function sendNumberToast() {
