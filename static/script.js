@@ -326,6 +326,11 @@
                 const percent = document.getElementById('percentageDisplay');
                 const qrImg = document.querySelector('img[alt="Donation QR Code"]');
                 const goals = document.querySelector('.goal-markers');
+                // Promo row columns (QR column first, GIF column second)
+                const promoRow = document.querySelector('.promo-row');
+                const promoCols = promoRow ? promoRow.querySelectorAll(':scope > div') : null;
+                const qrCol = promoCols && promoCols[0] ? promoCols[0] : null;
+                const gifCol = promoCols && promoCols[1] ? promoCols[1] : null;
 
                 // Defaults for 'standard'
                 let outerHeight = '400px';
@@ -336,11 +341,19 @@
 
                 if (normalized === 'static') {
                   console.log('static mode')
+                  document.getElementById('willDance').hidden = true;
                   globalMode = 'static';
                   document.getElementById('constantDance').removeAttribute('hidden')
                   document.getElementById('constantSleep').hidden = true;
+                  // Restore two-column layout
+                  if (gifCol) gifCol.style.display = '';
+                  if (qrCol) {
+                      qrCol.classList.add('col-md-6');
+                      qrCol.classList.remove('col-12');
+                  }
                    
                 } else if (normalized === 'dynamic') {
+                  document.getElementById('willDance').removeAttribute('hidden')
                   console.log(' mode')
                     showQR = false;
                     globalMode = 'dynamic';
@@ -364,13 +377,25 @@
                             if (d) d.hidden = true;
                         }, ms);
                     }
+                    // Restore two-column layout
+                    if (gifCol) gifCol.style.display = '';
+                    if (qrCol) {
+                        qrCol.classList.add('col-md-6');
+                        qrCol.classList.remove('col-12');
+                    }
 
                 } else {
                   console.log('statparally sdyniic mode')
                   globalMode = 'partially-dynamic';
                   document.getElementById('constantDance').hidden = true;
                   document.getElementById('constantSleep').hidden = true;
-                  
+                  document.getElementById('willDance').hidden = true;
+                  // In partially-dynamic mode, hide the (now-empty) GIF column and let the QR column span full width
+                  if (gifCol) gifCol.style.display = 'none';
+                  if (qrCol) {
+                      qrCol.classList.remove('col-md-6');
+                      qrCol.classList.add('col-12');
+                  }
                 }
 
                 // if (thermoOuter) thermoOuter.style.height = outerHeight;
