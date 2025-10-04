@@ -38,8 +38,8 @@ class GmailNotifier:
         self.service = None
         self.last_history_id: Optional[str] = None
         self.polling = False
-        # Display mode for frontend behavior/layout. One of: 'standard', 'compact', 'minimal'
-        self.mode = 'standard'
+        # Display mode for frontend behavior/layout. One of: 'static', 'partial-dynamic', 'dynamic'
+        self.mode = 'static'
         self.setup_routes()
 
     def setup_routes(self):
@@ -74,26 +74,49 @@ class GmailNotifier:
             if flask.request.method == 'GET':
                 return jsonify({'mode': self.mode})
 
-            # For changes, require authentication similar to other admin actions
             if not self.credentials:
                 return jsonify({'error': 'Not authenticated'}), 401
 
             data = flask.request.get_json(silent=True) or {}
             new_mode = (data.get('mode') or '').strip().lower()
-            # if new_mode not in {'standard', 'compact', 'minimal'}:
-            #     return jsonify({'error': 'Invalid mode'}), 400
+            if new_mode not in {'static', 'partial-dynamic', 'dynamic'}:
+                return jsonify({'error': 'Invalid mode'}), 400
 
             self.mode = new_mode
             # Broadcast to all clients
-            print(self.mode, new_mode)
             self.socketio.emit('modeChanged', {'mode': self.mode, 'timestamp': datetime.now().strftime('%H:%M:%S')})
             return jsonify({'success': True, 'mode': self.mode})
+
+        @self.app.route('/admin/toggle-polling', methods=['POST'])
+        def admin_toggle_polling():
+            if not self.credentials:
+                return jsonify({'error': 'Not authenticated'}), 401
+            try:
+                if self.polling:
+                    # Stop polling loop
+                    self.polling = False
+                    message = 'Polling stopped'
+                else:
+                    # Start polling loop in background
+                    self.start_polling()
+                    message = 'Polling started'
+
+                # Broadcast updated status
+                status_payload = {
+                    'authenticated': self.credentials is not None,
+                    'polling': self.polling,
+                    'last_check': getattr(self, '_last_check_time', None),
+                    'mode': self.mode
+                }
+                self.socketio.emit('status', status_payload)
+                return jsonify({'success': True, 'message': message})
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
 
         @self.app.route('/admin/poll', methods=['POST'])
         def manual_poll():
             if not self.credentials:
                 return jsonify({'error': 'Not authenticated'}), 401
-            
             try:
                 print("🔄 Manual poll triggered")
                 self.check_new_emails()

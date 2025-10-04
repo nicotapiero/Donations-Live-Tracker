@@ -352,6 +352,16 @@
             display: block;
             line-height: 1.2;
         }
+
+        /* Cleaned up image sizing classes */
+        .promo-image {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+        }
+        .promo-row {
+            row-gap: 1.5rem;
+        }
     </style>
 </head>
 
@@ -380,12 +390,13 @@
                 <!-- Thermometer Section (Right) -->
                 <div class="col-12 col-lg-10 d-flex flex-column align-items-center">
 
-                    <div class="row g-4 justify-content-center align-items-center mb-4">
+                    <div class="row justify-content-center align-items-center promo-row mb-4">
                         <div class="col-12 col-md-6 d-flex justify-content-center">
-                            <img src="/static/donation_qr.png" alt="Donation QR Code" style="width: 100%; max-width: 600px; height: auto;" class="img-fluid" />
+                            <img src="/static/donation_qr.png" alt="Donation QR Code" class="img-fluid promo-image" />
                         </div>
                         <div class="col-12 col-md-6 d-flex justify-content-center">
-                            <img id="constantDance" src="/static/donation_dance.gif" alt="Donation celebration" style="width: 100%; max-width: 600px; height: auto;" class="img-fluid" />
+                            <img id="constantDance" src="/static/donation_dance.gif" alt="Donation celebration" class="img-fluid promo-image" />
+                            <img id="constantSleep" src="/static/sleeping.gif" alt="Donation celebration" style="width: 100%; max-width: 600px; height: auto;" class="img-fluid" hidden=""/>
                         </div>
                     </div>
     
